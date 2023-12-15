@@ -29,7 +29,9 @@ async function run() {
 
         //add database name
         const brandsCollection = client.db('brandsDB').collection('brands');
+        const cartCollection = client.db('brandsDB').collection('cart');
 
+        //brand functionality
         //implement read
         app.get('/brands', async (req, res) => {
             const cursor = brandsCollection.find();
@@ -76,6 +78,28 @@ async function run() {
         })
 
 
+
+        //cart operation
+        //read cart
+        app.get('/cart', async (req, res) => {
+            const cursor = cartCollection.find();
+            const result = await cursor.toArray();
+            res.send(result)
+        })
+        //add to cart
+        app.post('/cart', async (req, res) => {
+            const newCart = req.body;
+            console.log(newCart);
+            const result = await cartCollection.insertOne(newCart);
+            res.send(result)
+        })
+        //delete cart item
+        app.delete('/cart/:id', async (req, res) => { 
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await cartCollection.deleteOne(query);
+            res.send(result);
+        })
 
 
 
