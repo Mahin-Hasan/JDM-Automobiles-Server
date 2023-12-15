@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -31,11 +31,12 @@ async function run() {
         const brandsCollection = client.db('brandsDB').collection('brands');
 
         //implement read
-        app.get('/brands', async(req,res)=> {
+        app.get('/brands', async (req, res) => {
             const cursor = brandsCollection.find();
             const result = await cursor.toArray();
             res.send(result)
         })
+
 
         //add brands
         app.post('/brands', async (req, res) => {
@@ -44,6 +45,36 @@ async function run() {
             const result = await brandsCollection.insertOne(newBrand);
             res.send(result)
         })
+
+        //update added brands
+        app.get('/brands/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await brandsCollection.findOne(query);
+            res.send(result)
+        })
+
+        app.put('/brands/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedBrands = req.body;
+            // image, brandName, carType, carPrice, carRating, carDescription
+            const brands = {
+                $set: {
+                    image: updatedBrands.image,
+                    brandName: updatedBrands.brandName,
+                    carName: updatedBrands.carName,
+                    carType: updatedBrands.carType,
+                    carPrice: updatedBrands.carPrice,
+                    carRating: updatedBrands.carRating,
+                    carDescription: updatedBrands.carDescription,
+                }
+            }
+            const result = await brandsCollection.updateOne(filter, brands, options)
+            res.send(result);
+        })
+
 
 
 
