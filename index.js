@@ -13,7 +13,6 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.4lo48xa.mongodb.net/?retryWrites=true&w=majority`;
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
     serverApi: {
         version: ServerApiVersion.v1,
@@ -24,7 +23,6 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
 
         //add database name
@@ -48,20 +46,19 @@ async function run() {
             res.send(result)
         })
 
-        //update added brands
+        // see updated added brands
         app.get('/brands/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await brandsCollection.findOne(query);
             res.send(result)
         })
-
+        //update
         app.put('/brands/:id', async (req, res) => {
             const id = req.params.id;
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true };
             const updatedBrands = req.body;
-            // image, brandName, carType, carPrice, carRating, carDescription
             const brands = {
                 $set: {
                     image: updatedBrands.image,
@@ -77,9 +74,8 @@ async function run() {
             res.send(result);
         })
 
-
-
         //cart operation
+
         //read cart
         app.get('/cart', async (req, res) => {
             const cursor = cartCollection.find();
@@ -94,7 +90,7 @@ async function run() {
             res.send(result)
         })
         //delete cart item
-        app.delete('/cart/:id', async (req, res) => { 
+        app.delete('/cart/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await cartCollection.deleteOne(query);
